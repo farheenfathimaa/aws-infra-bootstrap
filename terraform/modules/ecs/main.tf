@@ -1,8 +1,12 @@
 data "aws_region" "current" {}
 
+resource "random_id" "suffix" {
+  byte_length = 4
+}
+
 # --- ECS Cluster ---
 resource "aws_ecs_cluster" "this" {
-  name = "${var.environment}-cluster"
+  name = "${var.environment}-cluster-${random_id.suffix.hex}"
 
   setting {
     name  = "containerInsights"
@@ -16,7 +20,7 @@ resource "aws_ecs_cluster" "this" {
 
 # --- CloudWatch Log Group for ECS ---
 resource "aws_cloudwatch_log_group" "ecs" {
-  name              = "/ecs/${var.environment}-app"
+  name              = "/ecs/${var.environment}-app-${random_id.suffix.hex}"
   retention_in_days = 7
 
   tags = {
@@ -26,7 +30,7 @@ resource "aws_cloudwatch_log_group" "ecs" {
 
 # --- IAM Roles ---
 resource "aws_iam_role" "ecs_task_execution_role" {
-  name = "${var.environment}-ecs-task-execution-role"
+  name = "${var.environment}-ecs-exec-role-${random_id.suffix.hex}"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -48,7 +52,7 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy" {
 }
 
 resource "aws_iam_role" "ecs_task_role" {
-  name = "${var.environment}-ecs-task-role"
+  name = "${var.environment}-ecs-task-role-${random_id.suffix.hex}"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -118,7 +122,7 @@ resource "aws_security_group" "ecs_service" {
 
 # --- Load Balancer ---
 resource "aws_lb" "main" {
-  name               = "${var.environment}-alb"
+  name               = "${var.environment}-alb-${random_id.suffix.hex}"
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.alb.id]
@@ -130,7 +134,7 @@ resource "aws_lb" "main" {
 }
 
 resource "aws_lb_target_group" "app" {
-  name        = "${var.environment}-tg"
+  name        = "${var.environment}-tg-${random_id.suffix.hex}"
   port        = var.container_port
   protocol    = "HTTP"
   vpc_id      = var.vpc_id
