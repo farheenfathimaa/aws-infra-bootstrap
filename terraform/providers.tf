@@ -8,8 +8,9 @@ terraform {
     }
   }
 
-  # Backend configuration will be injected via CLI or a separate file for remote state
-  # backend "s3" {}
+  backend "s3" {
+    # These will be provided via CLI or a .tfbackend file in GitHub Actions
+  }
 }
 
 provider "aws" {
