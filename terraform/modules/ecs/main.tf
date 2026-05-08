@@ -1,3 +1,5 @@
+data "aws_region" "current" {}
+
 # --- ECS Cluster ---
 resource "aws_ecs_cluster" "this" {
   name = "${var.environment}-cluster"
@@ -192,7 +194,7 @@ resource "aws_ecs_task_definition" "app" {
         logDriver = "awslogs"
         options = {
           "awslogs-group"         = aws_cloudwatch_log_group.ecs.name
-          "awslogs-region"        = "us-east-1" # Hardcoded for now, can be variable
+          "awslogs-region"        = data.aws_region.current.name
           "awslogs-stream-prefix" = "ecs"
         }
       }
