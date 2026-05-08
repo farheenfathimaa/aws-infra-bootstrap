@@ -1,67 +1,63 @@
-# AWS Infrastructure Bootstrap
+# 🚀 AWS Infrastructure Bootstrap Pipeline
 
-This project provisions a minimal but production-ready AWS infrastructure using Terraform.
+A production-ready, modularized AWS infrastructure provisioned with **Terraform** and deployed via **GitHub Actions**. This project demonstrates a full CI/CD pipeline for a containerized application using AWS Free Tier services.
 
-## Infrastructure Components
-- **ECS (Fargate)**: Runs a containerized FastAPI backend.
-- **RDS (PostgreSQL)**: Managed database instance in private subnets.
-- **S3**: Storage bucket for static assets or logs.
-- **VPC**: Custom networking with public and private subnets.
-- **CloudWatch**: Monitoring alarms for ECS service.
+---
 
-## Project Structure
-```text
-.
-├── .github/workflows/       # CI/CD pipelines
-├── app/                     # FastAPI application source code
-├── terraform/
-│   ├── modules/             # Reusable infrastructure modules
-│   │   ├── vpc/             # Networking
-│   │   ├── ecs/             # Container orchestration
-│   │   ├── rds/             # Database
-│   │   ├── s3/              # Storage
-│   │   └── cloudwatch/      # Monitoring
-│   ├── main.tf              # Root configuration
-│   ├── variables.tf         # Input variables
-│   ├── outputs.tf           # Project outputs
-│   └── providers.tf         # Provider definitions
-└── README.md
+## 🏗️ Architecture Overview
+
+This project provisions a highly available and secure environment:
+
+- **VPC Module**: Custom network with 2 Public Subnets (for ALB) and 2 Private Subnets (for RDS), including an Internet Gateway.
+- **ECS Module**: AWS Fargate cluster running containerized services with auto-scaling capabilities.
+- **RDS Module**: Managed PostgreSQL instance secured in private subnets.
+- **S3 Module**: Encrypted bucket for application assets and logs.
+- **Remote State**: Terraform state is managed remotely in an S3 bucket with encryption.
+- **CI/CD**: Fully automated pipeline that runs `terraform plan` on PRs and `terraform apply` on merges to `main`.
+
+---
+
+## ⚡ Features
+
+- [x] **Infrastructure as Code (IaC)**: Fully modular Terraform code.
+- [x] **Automated CI/CD**: No manual deployments; everything goes through GitHub Actions.
+- [x] **Security First**: IAM roles with least-privilege, private subnets for DB, and encrypted state.
+- [x] **Resilience**: Random suffixes on resources to prevent naming collisions.
+- [x] **Monitoring**: CloudWatch Log Groups for container logs.
+
+---
+
+## 📸 Project in Action
+
+### 1. GitHub Actions Success
+<!-- [PLACEHOLDER: Add your screenshot of the Green GitHub Action here] -->
+
+### 2. Live Application
+<!-- [PLACEHOLDER: Add your screenshot of the "Welcome to nginx" page here] -->
+
+---
+
+## 🛠️ How to Use
+
+1. **Prerequisites**: 
+   - AWS Account (Free Tier)
+   - GitHub Repository
+2. **Setup Secrets**:
+   - Add `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION`
+   - Add `DB_PASSWORD`, `S3_BUCKET_NAME`, `S3_STATE_BUCKET`, `CONTAINER_IMAGE`
+3. **Deploy**:
+   - Push code to the `main` branch.
+   - Watch the GitHub Actions tab!
+
+---
+
+## 🗑️ Cleanup
+
+To avoid any costs, run:
+```bash
+terraform destroy
 ```
 
-## Getting Started
+---
 
-### 1. Prerequisites
-- AWS Account
-- GitHub Repository
-- Terraform installed (for local testing)
-- Docker (for building the app image)
-
-### 2. AWS IAM Setup
-1. Create an IAM User named `github-actions-terraform`.
-2. Attach the `AdministratorAccess` policy.
-3. Create an Access Key and save the **Access Key ID** and **Secret Access Key**.
-
-### 3. GitHub Secrets
-Add the following secrets to your GitHub repository:
-- `AWS_ACCESS_KEY_ID`
-- `AWS_SECRET_ACCESS_KEY`
-- `AWS_REGION` (e.g., `us-east-1`)
-- `DB_PASSWORD` (Password for the RDS instance)
-- `CONTAINER_IMAGE` (Your Docker image URI, e.g., `<aws_account_id>.dkr.ecr.us-east-1.amazonaws.com/my-app:latest`)
-- `S3_BUCKET_NAME` (A unique name for your S3 bucket)
-
-### 4. Remote State Setup (Recommended)
-By default, this project uses local state. For CI/CD, you should configure a remote S3 backend.
-1. Create an S3 bucket for terraform state.
-2. Uncomment the `backend "s3" {}` block in `terraform/providers.tf`.
-3. Provide the backend config during `terraform init`:
-   ```bash
-   terraform init -backend-config="bucket=my-terraform-state-bucket" -backend-config="key=dev/terraform.tfstate" -backend-config="region=us-east-1"
-   ```
-
-## Deployment
-- **Plan**: Create a Pull Request to `main`. GitHub Actions will run `terraform plan`.
-- **Apply**: Merge the Pull Request to `main`. GitHub Actions will run `terraform apply`.
-
-## Accessing the App
-Once deployed, check the `alb_dns_name` output in the GitHub Actions logs or run `terraform output` locally. You can access the API at `http://<alb_dns_name>/`.
+*Built with ❤️ by Farheen Fathima*
